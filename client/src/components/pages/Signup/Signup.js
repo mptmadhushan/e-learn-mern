@@ -15,7 +15,9 @@ class Signup extends Component {
         username: '',
         email: '',
         password: '',
-        role: ''
+        role: '',
+        age:'',
+        gender:'',
       },
       showToast: false,
       toastText: ''
@@ -94,6 +96,23 @@ class Signup extends Component {
                       placeholder='sample@email.net'
                       value={this.state.email}
                       onChange={this.handleInputChange} />
+                  </Form.Group><Form.Group controlId='age'>
+                    <Form.Label>Age</Form.Label>
+                    <Form.Control
+                      required
+                      type='text'
+                      name='age'
+                      placeholder='age'
+                      value={this.state.age}
+                      onChange={this.handleInputChange} />
+                  </Form.Group>
+                  <Form.Group controlId='gender'>
+                    <Form.Label>Gender</Form.Label>
+                    <Form.Control as='select' name='gender' value={this.state.gender} onChange={this.handleInputChange}>
+                      <option>Which's your gender?</option>
+                      <option value='Male' >Male</option>
+                      <option value='Female' >Female</option>
+                    </Form.Control>
                   </Form.Group>
 
                   <Form.Group controlId='role'>
