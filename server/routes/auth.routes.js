@@ -33,13 +33,13 @@ router.post('/signup',
             return
         }
 
-        const { name, surname, username, password, email, role } = req.body
+        const { name, surname, username, password, email, role ,age, gender} = req.body
 
         const salt = bcrypt.genSaltSync(bcryptSalt)
         const hashPass = bcrypt.hashSync(password, salt)
 
         User
-            .create({ name, surname, username, password: hashPass, email, role })
+            .create({ name, surname, username, password: hashPass, email, role,age ,gender })
             .then(newUser => req.login(newUser, err => err ? res.status(500).json({ message: 'Login error' }) : res.status(200).json(newUser)))
             .catch(() => res.status(500).json({ message: 'Error saving user to DB. Please try again.' }))
     })
