@@ -35,6 +35,8 @@ class CourseDetails extends Component {
       },
       course: undefined,
       comments: undefined,
+      cvv:"",
+      card:"",
       quiz: undefined,
       user: "",
       fraud: "",
@@ -45,15 +47,10 @@ class CourseDetails extends Component {
       videoUrl: undefined,
       showModal: false,
       showModalBuy: false,
-     
-      links: [
-        "https://www.simplilearn.com/tutorials/machine-learning-tutorial/bagging-in-machine-learning",
-        "https://prwatech.in/blog/machine-learning/bagging-technique-in-machine-learning/",
-        "https://machinelearningmastery.com/bagging-and-random-forest-ensemble-algorithms-for-machine-learning/",
-        "https://www.statology.org/bagging-machine-learning/",
-        "https://www.educba.com/machine-learning-algorithms/",
-      ],
+      links: "",
     };
+    
+   
     this.coursesService = new CoursesService();
     this.commentsService = new CommentsService();
   }
@@ -61,18 +58,18 @@ class CourseDetails extends Component {
   componentDidMount = () => {
     this.refreshCourse();
     const user = localStorage.getItem("user");
-    console.log("🚀 ~~ user", user);
+    // console.log("🚀 ~~ user", user);
     this.setState({
       user: user,
     });
     // this.capture()
-    setInterval(this.capture, 10000);
+    setInterval(this.capture, 20000);
   };
   async sendData(reader) {
-    console.log(
-      "🚀 ~ file: Course-details.js ~ line 71 ~ CourseDetails ~ sendData ~ reader",
-      reader
-    );
+    // console.log(
+    //   "🚀 ~ file: Course-details.js ~ line 71 ~ CourseDetails ~ sendData ~ reader",
+    //   reader
+    // );
     const formData = new FormData();
     formData.append("image", reader);
     try {
@@ -83,7 +80,8 @@ class CourseDetails extends Component {
         headers: { "Content-Type": "multipart/form-data" },
       });
       this.setState({ fraudRes: response });
-      this.props.handleToast(true, 'Emotion detected', '#f8d7da')
+      console.log("🚀 ~ file: Course-details.js ~ line 83 ~ CourseDetails ~ sendData ~ response", response)
+      this.props.handleToast(true, response.data.detected_emotion, '#f8d7da')
     } catch (error) {
       console.log(error);
     }
@@ -96,24 +94,42 @@ class CourseDetails extends Component {
   capture = () => {
     const imageSrc = this.refs.webcam.getScreenshot();
     console.log(
-      "🚀 ~ file: Course-details.js ~ line 72 ~ CourseDetails ~ imageSrc",
+      "🚀 ~",
       imageSrc
     );
-    fetch(imageSrc)
-      .then((res) => res.blob())
-      .then((blob) => {
-        const file = new File([blob], "File name", { type: "image/png" });
-        console.log("🚀 ~ file: index.js ~ line 84 ~ .then ~ file", file);
-        // setSelectedFile(file);
-        const reader = new FileReader();
-        reader.addEventListener("load", () => {
-          this.setState({ emoImage: reader.result });
-        });
-        reader.readAsDataURL(file);
-        this.sendData(reader);
-        console.log("image-->", reader);
-      });
+    var file = this.dataURLtoFile(imageSrc,'image.jpeg');
+    console.log(file);
+    this.sendData(file)
   };
+   dataURLtoFile(dataurl, filename) {
+ 
+    var arr = dataurl.split(','),
+        mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), 
+        n = bstr.length, 
+        u8arr = new Uint8Array(n);
+        
+    while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    
+    return new File([u8arr], filename, {type:mime});
+}
+
+
+  getFileFromBase64(string64, fileName) {
+    const trimmedString = string64.replace('dataimage/jpegbase64', '');
+    const imageContent = atob(trimmedString);
+    const buffer = new ArrayBuffer(imageContent.length);
+    const view = new Uint8Array(buffer);
+  
+    for (let n = 0; n < imageContent.length; n++) {
+      view[n] = imageContent.charCodeAt(n);
+    }
+    const type = 'image/jpeg';
+    const blob = new Blob([buffer], { type });
+    return new File([blob], fileName, { lastModified: new Date().getTime(), type });
+  }
   handleClose = () => {
     this.setState({
       showModal: false,
@@ -182,33 +198,50 @@ class CourseDetails extends Component {
 
   handleAnswer = (answer) => {
     const corAnswer = this.state.course.correctAnswer[0];
-    console.log(
-      "🚀 ~ file: Course-details.js ~ line 73 ~ CourseDetails ~ answer",
-      answer,
-      corAnswer
-    );
-
-    axios
-      .post("http://127.0.0.1:8000/api/v1/suggestions", this.state.course.quiz)
-      .then((res) => {
-        console.log(res.data);
-        this.setState({
-          links: res.data,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+   
+    // console.log(
+    //   "🚀 ~ file: Course-details.js ~ line 73 ~ CourseDetails ~ answer",
+    //   answer,
+    //   corAnswer
+    // );
+      const value={
+        doc:this.state.course.quiz[0]
+      }
+      
+   
     if (answer === corAnswer) {
       this.props.handleToast(true, "Correct Answer!", "#d4edda");
     } else {
       this.props.handleToast(true, "Wrong Answer!", "#f8d7da");
+      this.getSugg()
       this.setState({
         showModal: true,
       });
     }
   };
-
+  getSugg=()=>{
+    console.log('api--> sugg')
+      var bodyFormData = new FormData();
+      bodyFormData.append('doc', this.state.course.quiz[0]);
+      const foo= this;
+      axios({
+        method: "post",
+        url: "http://127.0.0.1:8000/api/v1/suggestions",
+        data: bodyFormData,
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+        .then(function (response) {
+          //handle success
+          console.log(response.data.links);
+          foo.setState({
+            links: response.data.links,
+          });
+        })
+        .catch(function (response) {
+          //handle error
+          console.log(response);
+        });
+  }
   toggleInput = () => this.setState({ showInput: !this.state.showInput });
 
   setVideoUrl = (url) => this.setState({ videoUrl: url });
@@ -233,18 +266,42 @@ class CourseDetails extends Component {
       transaction_month: month,
       age: parseInt(userData.age),
     };
-
-    axios
-      .post("http://127.0.0.1:8000/api/v1/fraud-detection", value)
-      .then((res) => {
-        console.log(res.data);
-        this.setState({
-          fraud: res.data,
-        });
+    var bodyFormData = new FormData();
+    const foo = this;
+      bodyFormData.append('amount_of_transaction',  623.89);
+      bodyFormData.append('gender',  "female");
+      bodyFormData.append('transaction_hour',  23);
+      bodyFormData.append('transaction_day',  31);
+      bodyFormData.append('transaction_month',  12);
+      bodyFormData.append('age',  22);
+      axios({
+        method: "post",
+        url: "http://127.0.0.1:8000/api/v1/fraud-detection",
+        data: bodyFormData,
+        headers: { "Content-Type": "multipart/form-data" },
       })
-      .catch((error) => {
-        console.log(error);
-      });
+        .then(function (response) {
+          //handle success
+          console.log(response.data);
+          foo.setState({
+            fraud:response.data,
+          });
+        })
+        .catch(function (response) {
+          //handle error
+          console.log(response);
+        });
+    // axios
+    //   .post("http://127.0.0.1:8000/api/v1/fraud-detection", value)
+    //   .then((res) => {
+    //     console.log(res.data);
+    //     this.setState({
+    //       fraud: res.data,
+    //     });
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //   });
   };
 
   render() {
@@ -324,8 +381,9 @@ class CourseDetails extends Component {
                   </Modal.Header>
                   <Modal.Body>
                     <Form onSubmit={this.handleSubmit}>
-                      {this.state.fraud ? (
-                        <Form.Group controlId="username">
+                      {!this.state.fraud ? (
+                        <div>
+                          <Form.Group controlId="username">
                           <Form.Label>Amount</Form.Label>
                           <Form.Control
                             type="text"
@@ -335,6 +393,27 @@ class CourseDetails extends Component {
                             onChange={this.handleInputChange}
                           />
                         </Form.Group>
+                        <Form.Group controlId="card">
+                        <Form.Label>Card Number</Form.Label>
+                        <Form.Control
+                          type="text"
+                          
+                          name="card"
+                          value={this.state.card}
+                          onChange={this.handleInputChange}
+                        />
+                      </Form.Group>
+                      <Form.Group controlId="cvv">
+                        <Form.Label>cvv</Form.Label>
+                        <Form.Control
+                          type="text"
+                          
+                          name="cvv"
+                          value={this.state.cvv}
+                          onChange={this.handleInputChange}
+                        />
+                      </Form.Group>
+                        </div>
                       ) : (
                         <p>{this.state.fraud.msg}</p>
                       )}
@@ -444,7 +523,7 @@ class CourseDetails extends Component {
                                 {idx + 1})
                                 <Button
                                   className="px-4 ml-3"
-                                  onClick={() => this.handleAnswer(elm)}
+                                  onClick={()=>this.handleAnswer(elm)}
                                   variant="outline-primary"
                                   size="sm"
                                 >
@@ -463,7 +542,7 @@ class CourseDetails extends Component {
                           </Modal.Header>
                           <Modal.Body>
                             <p>Please Refer</p>
-                            <ul className="requirements mb-4">
+                            {this.state.links&&<ul className="requirements mb-4">
                               {this.state.links.map((elm, idx) => (
                                 <li key={idx}>
                                   <Button
@@ -476,7 +555,7 @@ class CourseDetails extends Component {
                                   </Button>
                                 </li>
                               ))}
-                            </ul>
+                            </ul>}
                           </Modal.Body>
                         </Modal>
                       </motion.div>
