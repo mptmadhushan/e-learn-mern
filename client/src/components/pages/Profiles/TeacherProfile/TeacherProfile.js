@@ -28,7 +28,7 @@ class TeacherProfile extends Component {
     bc.onmessage = (message) => {
       console.log("mes", message);
 
-      this.props.handleToast(true, message.data.username +' not attention');
+      this.props.handleToast(true, message.data);
     };
     this.refreshTeacher()}
 
