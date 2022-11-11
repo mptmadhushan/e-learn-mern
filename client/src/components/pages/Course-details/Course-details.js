@@ -9,7 +9,7 @@ import CommentsService from "./../../../service/comments.service";
 import AddComments from "./../../shared/AddComments/AddComments";
 import Loader from "./../../shared/Spinner/Loader";
 import Webcam from "react-webcam";
-
+import { BroadcastChannel } from 'broadcast-channel';
 import {
   Container,
   Row,
@@ -65,7 +65,7 @@ class CourseDetails extends Component {
   componentDidMount = () => {
     this.refreshCourse();
     this.showQuiz();
-
+    
     const user = JSON.parse(localStorage.getItem("user"));
     console.log("🚀 ~~ user", user);
     this.setState({
@@ -95,6 +95,8 @@ class CourseDetails extends Component {
       );
       this.handleAttentions();
       this.props.handleToast(true, response.data.detected_emotion, "#f8d7da");
+      const bc = new window.BroadcastChannel('channel_name');
+      bc.postMessage(this.props.loggedUser);
     } catch (error) {
       console.log(error);
       this.handleAttentions();
@@ -123,6 +125,7 @@ class CourseDetails extends Component {
   }
 
   handleMarks = () => {
+   
     const mark = {
       user: this.props.loggedUser._id,
       course: this.state.course._id,
@@ -275,7 +278,7 @@ class CourseDetails extends Component {
 
   handleAnswer = (answer) => {
     const corAnswer = this.state.course.correctAnswer[0];
-
+    
     // console.log(
     //   "🚀 ~ file: Course-details.js ~ line 73 ~ CourseDetails ~ answer",
     //   answer,
@@ -287,7 +290,7 @@ class CourseDetails extends Component {
 
     if (answer === corAnswer) {
       this.props.handleToast(true, "Correct Answer!", "#d4edda");
-      this.handleAttentions();
+      this.handleMarks();
     } else {
       this.props.handleToast(true, "Wrong Answer!", "#f8d7da");
       this.setState({

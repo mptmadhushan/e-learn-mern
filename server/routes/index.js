@@ -8,3 +8,4 @@ module.exports = (app) => {
   app.use("/api/files", require("./files.routes.js"));
   app.use("/api", require("./auth.routes.js"));
 };
+

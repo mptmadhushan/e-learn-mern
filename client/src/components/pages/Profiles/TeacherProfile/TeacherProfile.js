@@ -23,7 +23,14 @@ class TeacherProfile extends Component {
     this.coursesServices = new CoursesServices()
   }
 
-  componentDidMount = () => this.refreshTeacher()
+  componentDidMount = () => {
+    const bc = new window.BroadcastChannel("channel_name");
+    bc.onmessage = (message) => {
+      console.log("mes", message);
+
+      this.props.handleToast(true, message.data.username +' not attention');
+    };
+    this.refreshTeacher()}
 
   refreshTeacher = () => {
     const teacher_id = this.props.match.params.teacher_id
