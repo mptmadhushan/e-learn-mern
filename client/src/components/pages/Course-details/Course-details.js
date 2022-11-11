@@ -72,7 +72,7 @@ class CourseDetails extends Component {
       user: user,
     });
 
-    // setInterval(this.capture, 20000);
+    setInterval(this.capture, 20000);
   };
   async sendData(reader) {
     // console.log(
