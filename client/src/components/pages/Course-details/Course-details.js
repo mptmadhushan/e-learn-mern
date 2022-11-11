@@ -9,7 +9,7 @@ import CommentsService from "./../../../service/comments.service";
 import AddComments from "./../../shared/AddComments/AddComments";
 import Loader from "./../../shared/Spinner/Loader";
 import Webcam from "react-webcam";
-import { BroadcastChannel } from 'broadcast-channel';
+
 import {
   Container,
   Row,
