@@ -93,11 +93,11 @@ router.post(
       description,
       whatYouWillLearn,
       price,
-      duration,
       requirements,
       videos,
       owner,
       quiz,
+      duration,
       answer,
       correctAnswer,
     } = req.body;

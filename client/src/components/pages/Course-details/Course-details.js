@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import ReactPlayer from "react-player";
 import CoursesService from "./../../../service/courses.service";
+import MarksService from "./../../../service/marks.service";
+import AttentionService from "./../../../service/attention.service";
 import CommentsService from "./../../../service/comments.service";
 import AddComments from "./../../shared/AddComments/AddComments";
 import Loader from "./../../shared/Spinner/Loader";
@@ -31,12 +33,12 @@ class CourseDetails extends Component {
         transaction_hour: "",
         transaction_day: "",
         transaction_month: "",
-        age: "",
+        age: "", cvv: "",
+        card: "",
       },
       course: undefined,
       comments: undefined,
-      cvv:"",
-      card:"",
+     
       quiz: undefined,
       user: "",
       fraud: "",
@@ -47,23 +49,30 @@ class CourseDetails extends Component {
       videoUrl: undefined,
       showModal: false,
       showModalBuy: false,
+      isDisable: false,
+      marksData: [],
+      attentionsData: [],
+      hidden: true,
       links: "",
     };
-    
-   
+
     this.coursesService = new CoursesService();
     this.commentsService = new CommentsService();
+    this.marksService = new MarksService();
+    this.attentionService = new AttentionService();
   }
 
   componentDidMount = () => {
     this.refreshCourse();
-    const user = localStorage.getItem("user");
-    // console.log("🚀 ~~ user", user);
+    this.showQuiz();
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    console.log("🚀 ~~ user", user);
     this.setState({
       user: user,
     });
-    // this.capture()
-    setInterval(this.capture, 20000);
+
+    // setInterval(this.capture, 20000);
   };
   async sendData(reader) {
     // console.log(
@@ -80,55 +89,99 @@ class CourseDetails extends Component {
         headers: { "Content-Type": "multipart/form-data" },
       });
       this.setState({ fraudRes: response });
-      console.log("🚀 ~ file: Course-details.js ~ line 83 ~ CourseDetails ~ sendData ~ response", response)
-      this.props.handleToast(true, response.data.detected_emotion, '#f8d7da')
+      console.log(
+        "🚀 ~ file: Course-details.js ~ line 83 ~ CourseDetails ~ sendData ~ response",
+        response
+      );
+      this.handleAttentions();
+      this.props.handleToast(true, response.data.detected_emotion, "#f8d7da");
     } catch (error) {
       console.log(error);
+      this.handleAttentions();
     }
   }
 
-  //   setRef = (webcam) => {
-  //     this.webcam = webcam;
-  //   };
-
   capture = () => {
     const imageSrc = this.refs.webcam.getScreenshot();
-    console.log(
-      "🚀 ~",
-      imageSrc
-    );
-    var file = this.dataURLtoFile(imageSrc,'image.jpeg');
+    console.log("🚀 ~", imageSrc);
+    var file = this.dataURLtoFile(imageSrc, "image.jpeg");
     console.log(file);
-    this.sendData(file)
+    this.sendData(file);
   };
-   dataURLtoFile(dataurl, filename) {
- 
-    var arr = dataurl.split(','),
-        mime = arr[0].match(/:(.*?);/)[1],
-        bstr = atob(arr[1]), 
-        n = bstr.length, 
-        u8arr = new Uint8Array(n);
-        
-    while(n--){
-        u8arr[n] = bstr.charCodeAt(n);
-    }
-    
-    return new File([u8arr], filename, {type:mime});
-}
+  dataURLtoFile(dataurl, filename) {
+    var arr = dataurl.split(","),
+      mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]),
+      n = bstr.length,
+      u8arr = new Uint8Array(n);
 
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new File([u8arr], filename, { type: mime });
+  }
+
+  handleMarks = () => {
+    const mark = {
+      user: this.props.loggedUser._id,
+      course: this.state.course._id,
+      teacher: this.state.course.owner._id,
+      marks: 1,
+    };
+    console.log("mrks");
+    this.marksService
+      .saveMark(mark)
+      .then(() => {
+        // this.props.refreshCourse()
+        console.log("hey");
+      })
+      .catch((err) =>
+        this.props.handleToast(
+          true,
+          "An error has occurred, please try again later",
+          "red"
+        )
+      );
+  };
+  handleAttentions = () => {
+    const attention = {
+      user: this.props.loggedUser._id,
+      course: this.state.course._id,
+      teacher: this.state.course.owner._id,
+      attention: "not giving attention",
+    };
+    console.log("mrks");
+    this.attentionService
+      .saveAttention(attention)
+      .then(() => {
+        // this.props.refreshCourse()
+        console.log("hey");
+      })
+      .catch((err) =>
+        this.props.handleToast(
+          true,
+          "An error has occurred, please try again later",
+          "red"
+        )
+      );
+  };
 
   getFileFromBase64(string64, fileName) {
-    const trimmedString = string64.replace('dataimage/jpegbase64', '');
+    const trimmedString = string64.replace("dataimage/jpegbase64", "");
     const imageContent = atob(trimmedString);
     const buffer = new ArrayBuffer(imageContent.length);
     const view = new Uint8Array(buffer);
-  
+
     for (let n = 0; n < imageContent.length; n++) {
       view[n] = imageContent.charCodeAt(n);
     }
-    const type = 'image/jpeg';
+    const type = "image/jpeg";
     const blob = new Blob([buffer], { type });
-    return new File([blob], fileName, { lastModified: new Date().getTime(), type });
+    return new File([blob], fileName, {
+      lastModified: new Date().getTime(),
+      type,
+    });
   }
   handleClose = () => {
     this.setState({
@@ -151,22 +204,46 @@ class CourseDetails extends Component {
     });
   };
 
+  showQuiz = () => {
+    const course_id = this.props.match.params.course_id;
+    const getCourse = this.coursesService.getCourse(course_id);
+    Promise.all([getCourse])
+      .then((res) =>
+        setTimeout(() => {
+          this.setState({ hidden: false });
+        }, res[0].data.duration + "000")
+        // console.log("asd", res)
+      )
+      .catch(() => {
+        this.props.handleToast(
+          true,
+          "An error has occurred, please try again later",
+          "#f8d7da"
+        );
+      });
+  };
+
   refreshCourse = () => {
     const course_id = this.props.match.params.course_id;
     const getCourse = this.coursesService.getCourse(course_id);
-    console.log(
-      "🚀 ~ file: Course-details.js ~ line 34 ~ CourseDetails ~ getCourse",
-      getCourse
-    );
+    const getCourseMarks = this.marksService.getCourseMarks(course_id);
+    const getCourseAttention =
+      this.attentionService.getCourseAttention(course_id);
+
+    console.log("🚀 ~ etCourseMarks", this.state.user);
+    console.log("🚀 ~  getCourse", getCourse);
 
     const getComments = this.commentsService.getCourseComments(course_id);
 
-    Promise.all([getCourse, getComments])
+    Promise.all([getCourse, getComments, getCourseMarks, getCourseAttention])
       .then((res) =>
+        // console.log('asd',res),
         this.setState({
           course: res[0].data,
           videoUrl: res[0].data.videos[0],
           comments: res[1].data,
+          marksData: res[2].data,
+          attentionsData: res[3].data,
         })
       )
       .catch(() => {
@@ -198,50 +275,53 @@ class CourseDetails extends Component {
 
   handleAnswer = (answer) => {
     const corAnswer = this.state.course.correctAnswer[0];
-   
+
     // console.log(
     //   "🚀 ~ file: Course-details.js ~ line 73 ~ CourseDetails ~ answer",
     //   answer,
     //   corAnswer
     // );
-      const value={
-        doc:this.state.course.quiz[0]
-      }
-      
-   
+    const value = {
+      doc: this.state.course.quiz[0],
+    };
+
     if (answer === corAnswer) {
       this.props.handleToast(true, "Correct Answer!", "#d4edda");
+      this.handleAttentions();
     } else {
       this.props.handleToast(true, "Wrong Answer!", "#f8d7da");
-      this.getSugg()
+      this.setState({
+        isDisable: true,
+      });
+      this.getSugg();
       this.setState({
         showModal: true,
       });
     }
   };
-  getSugg=()=>{
-    console.log('api--> sugg')
-      var bodyFormData = new FormData();
-      bodyFormData.append('doc', this.state.course.quiz[0]);
-      const foo= this;
-      axios({
-        method: "post",
-        url: "http://127.0.0.1:8000/api/v1/suggestions",
-        data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      })
-        .then(function (response) {
-          //handle success
-          console.log(response.data.links);
-          foo.setState({
-            links: response.data.links,
-          });
-        })
-        .catch(function (response) {
-          //handle error
-          console.log(response);
+  getSugg = () => {
+    console.log("api--> sugg");
+    var bodyFormData = new FormData();
+    bodyFormData.append("doc", this.state.course.quiz[0]);
+    const foo = this;
+    axios({
+      method: "post",
+      url: "http://127.0.0.1:8000/api/v1/suggestions",
+      data: bodyFormData,
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+      .then(function (response) {
+        //handle success
+        console.log(response.data.links);
+        foo.setState({
+          links: response.data.links,
         });
-  }
+      })
+      .catch(function (response) {
+        //handle error
+        console.log(response);
+      });
+  };
   toggleInput = () => this.setState({ showInput: !this.state.showInput });
 
   setVideoUrl = (url) => this.setState({ videoUrl: url });
@@ -268,29 +348,29 @@ class CourseDetails extends Component {
     };
     var bodyFormData = new FormData();
     const foo = this;
-      bodyFormData.append('amount_of_transaction',  623.89);
-      bodyFormData.append('gender',  "female");
-      bodyFormData.append('transaction_hour',  23);
-      bodyFormData.append('transaction_day',  31);
-      bodyFormData.append('transaction_month',  12);
-      bodyFormData.append('age',  22);
-      axios({
-        method: "post",
-        url: "http://127.0.0.1:8000/api/v1/fraud-detection",
-        data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      })
-        .then(function (response) {
-          //handle success
-          console.log(response.data);
-          foo.setState({
-            fraud:response.data,
-          });
-        })
-        .catch(function (response) {
-          //handle error
-          console.log(response);
+    bodyFormData.append("amount_of_transaction", 623.89);
+    bodyFormData.append("gender", "female");
+    bodyFormData.append("transaction_hour", 23);
+    bodyFormData.append("transaction_day", 31);
+    bodyFormData.append("transaction_month", 12);
+    bodyFormData.append("age", 22);
+    axios({
+      method: "post",
+      url: "http://127.0.0.1:8000/api/v1/fraud-detection",
+      data: bodyFormData,
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+      .then(function (response) {
+        //handle success
+        console.log(response.data);
+        foo.setState({
+          fraud: response.data,
         });
+      })
+      .catch(function (response) {
+        //handle error
+        console.log(response);
+      });
     // axios
     //   .post("http://127.0.0.1:8000/api/v1/fraud-detection", value)
     //   .then((res) => {
@@ -317,20 +397,18 @@ class CourseDetails extends Component {
         exit={{ opacity: 0 }}
       >
         <Container className="course-details ">
-        <Webcam
-                  audio={false}
-                  height={350}
-                  ref="webcam"
-                  style={{ position: "fixed",bottom:0,right:0 }}
-                  screenshotFormat="image/jpeg"
-                  width={350}
-                  videoConstraints={videoConstraints}
-                />
+          <Webcam
+            audio={false}
+            height={350}
+            ref="webcam"
+            style={{ position: "fixed", bottom: 0, right: 0 }}
+            screenshotFormat="image/jpeg"
+            width={350}
+            videoConstraints={videoConstraints}
+          />
           {this.state.course ? (
             <>
               <section className="header">
-                
-                
                 <Row>
                   <Col md={{ span: 8 }}>
                     <h1>{this.state.course.title}</h1>
@@ -353,7 +431,7 @@ class CourseDetails extends Component {
                       {this.state.course.difficultyLevel} |{" "}
                       <strong>Price:</strong> {this.state.course.price} € |{" "}
                       <strong>Duration:</strong> {this.state.course.duration}{" "}
-                      hrs.
+                      mins.
                     </p>
                   </Col>
                   <Col md={{ span: 4 }}>
@@ -384,35 +462,33 @@ class CourseDetails extends Component {
                       {!this.state.fraud ? (
                         <div>
                           <Form.Group controlId="username">
-                          <Form.Label>Amount</Form.Label>
-                          <Form.Control
-                            type="text"
-                            disabled
-                            name="amount_of_transaction"
-                            value={this.state.course.price}
-                            onChange={this.handleInputChange}
-                          />
-                        </Form.Group>
-                        <Form.Group controlId="card">
-                        <Form.Label>Card Number</Form.Label>
-                        <Form.Control
-                          type="text"
-                          
-                          name="card"
-                          value={this.state.card}
-                          onChange={this.handleInputChange}
-                        />
-                      </Form.Group>
-                      <Form.Group controlId="cvv">
-                        <Form.Label>cvv</Form.Label>
-                        <Form.Control
-                          type="text"
-                          
-                          name="cvv"
-                          value={this.state.cvv}
-                          onChange={this.handleInputChange}
-                        />
-                      </Form.Group>
+                            <Form.Label>Amount</Form.Label>
+                            <Form.Control
+                              type="text"
+                              disabled
+                              name="amount_of_transaction"
+                              value={this.state.course.price}
+                              onChange={this.handleInputChange}
+                            />
+                          </Form.Group>
+                          <Form.Group controlId="card">
+                            <Form.Label>Card Number</Form.Label>
+                            <Form.Control
+                              type="text"
+                              name="card"
+                              value={this.state.card}
+                              onChange={this.handleInputChange}
+                            />
+                          </Form.Group>
+                          <Form.Group controlId="cvv">
+                            <Form.Label>cvv</Form.Label>
+                            <Form.Control
+                              type="text"
+                              name="cvv"
+                              value={this.state.cvv}
+                              onChange={this.handleInputChange}
+                            />
+                          </Form.Group>
                         </div>
                       ) : (
                         <p>{this.state.fraud.msg}</p>
@@ -434,7 +510,9 @@ class CourseDetails extends Component {
               <section className="course-bckg">
                 <Row>
                   <Col>
-                    <h3 className="mt-5 mb-3">Description</h3>
+                  
+                      <h3 className="mt-5 mb-3">Description</h3>
+                  
                     <p>{this.state.course.description}</p>
 
                     <h3 className="mt-5 mb-4">What you will learn:</h3>
@@ -514,7 +592,9 @@ class CourseDetails extends Component {
                             ))}
                           </Col>
                         </Row>
-                        <h3 className="mt-4 mb-4">Quiz:</h3>
+                      {!this.state.hidden && 
+                      <div>
+                      <h3 className="mt-4 mb-4">Quiz:</h3>
                         <h4 className="mt-4 mb-4">{this.state.course.quiz}</h4>
                         <ul className="requirements mb-4">
                           {this.state.course.answer.map((elm, idx) => (
@@ -522,8 +602,9 @@ class CourseDetails extends Component {
                               <p style={{ display: "inline-flex" }}>
                                 {idx + 1})
                                 <Button
+                                  disabled={this.state.isDisable}
                                   className="px-4 ml-3"
-                                  onClick={()=>this.handleAnswer(elm)}
+                                  onClick={() => this.handleAnswer(elm)}
                                   variant="outline-primary"
                                   size="sm"
                                 >
@@ -532,7 +613,46 @@ class CourseDetails extends Component {
                               </p>
                             </li>
                           ))}
-                        </ul>
+                        </ul> 
+                      </div>}
+                        {this.state.user.role === "Teacher" && (
+                          <div>
+                            <p>Student Marks</p>
+                            <table>
+                              <tr>
+                                <th>Name</th>
+                                <th>Marks</th>
+                              </tr>
+                              {this.state.marksData.map((val, key) => {
+                                return (
+                                  <tr key={key}>
+                                    <td>{val.user.username}</td>
+                                    <td>{val.marks}</td>
+                                  </tr>
+                                );
+                              })}
+                            </table>
+                          </div>
+                        )}
+                        {this.state.user.role === "Teacher" && (
+                          <div>
+                            <p className="mt-5">Student Attention</p>
+                            <table>
+                              <tr>
+                                <th>Name</th>
+                                <th>Attention</th>
+                              </tr>
+                              {this.state.attentionsData.map((val, key) => {
+                                return (
+                                  <tr key={key}>
+                                    <td>{val.user.username}</td>
+                                    <td>{val.attention}</td>
+                                  </tr>
+                                );
+                              })}
+                            </table>
+                          </div>
+                        )}
                         <Modal
                           show={this.state.showModal}
                           onHide={this.handleClose}
@@ -542,20 +662,22 @@ class CourseDetails extends Component {
                           </Modal.Header>
                           <Modal.Body>
                             <p>Please Refer</p>
-                            {this.state.links&&<ul className="requirements mb-4">
-                              {this.state.links.map((elm, idx) => (
-                                <li key={idx}>
-                                  <Button
-                                    className="px-4 mt-1"
-                                    onClick={() => window.open(elm, "_blank")}
-                                    variant="outline-primary"
-                                    size="sm"
-                                  >
-                                    {elm}
-                                  </Button>
-                                </li>
-                              ))}
-                            </ul>}
+                            {this.state.links && (
+                              <ul className="requirements mb-4">
+                                {this.state.links.map((elm, idx) => (
+                                  <li key={idx}>
+                                    <Button
+                                      className="px-4 mt-1"
+                                      onClick={() => window.open(elm, "_blank")}
+                                      variant="outline-primary"
+                                      size="sm"
+                                    >
+                                      {elm}
+                                    </Button>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
                           </Modal.Body>
                         </Modal>
                       </motion.div>

@@ -56,6 +56,7 @@ const courseSchema = new Schema(
       type: [String],
       default: "unknown",
     },
+  
     videos: {
       type: [String],
       default: "https://www.youtube.com/watch?v=I_jSd4Wf7ck",
