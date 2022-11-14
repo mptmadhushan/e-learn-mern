@@ -68,7 +68,7 @@ class CourseDetails extends Component {
     this.showQuiz();
 
     const user = JSON.parse(localStorage.getItem("user"));
-    console.log("🚀 ~~ user", user);
+    // console.log("🚀 ~~ user", user);
     this.setState({
       user: user,
     });
@@ -109,10 +109,10 @@ class CourseDetails extends Component {
   }
 
   capture = () => {
-    const imageSrc = this.refs.webcam.getScreenshot();
-    console.log("🚀 ~", imageSrc);
+    const imageSrc = this.refs?.webcam?.getScreenshot();
+    
     var file = this.dataURLtoFile(imageSrc, "image.jpeg");
-    console.log(file);
+   
     this.sendData(file);
   };
   dataURLtoFile(dataurl, filename) {
@@ -136,7 +136,7 @@ class CourseDetails extends Component {
       teacher: this.state.course.owner._id,
       marks: 1,
     };
-    console.log("mrks");
+   
     this.marksService
       .saveMark(mark)
       .then(() => {
@@ -219,8 +219,8 @@ class CourseDetails extends Component {
         (res) =>
           setTimeout(() => {
             this.setState({ hidden: false });
-          }, res[0].data.duration + "000")
-        // console.log("asd", res)
+          }, res[0].data.duration * 6000)
+        // console.log("asd", res[0].data.duration *6000)
       )
       .catch(() => {
         this.props.handleToast(
@@ -237,9 +237,6 @@ class CourseDetails extends Component {
     const getCourseMarks = this.marksService.getCourseMarks(course_id);
     const getCourseAttention =
       this.attentionService.getCourseAttention(course_id);
-
-    console.log("🚀 ~ etCourseMarks", this.state.user);
-    console.log("🚀 ~  getCourse", getCourse);
 
     const getComments = this.commentsService.getCourseComments(course_id);
 
@@ -308,7 +305,7 @@ class CourseDetails extends Component {
     }
   };
   getSugg = () => {
-    console.log("api--> sugg");
+    
     var bodyFormData = new FormData();
     bodyFormData.append("doc", this.state.course.quiz[0]);
     const foo = this;
@@ -320,7 +317,7 @@ class CourseDetails extends Component {
     })
       .then(function (response) {
         //handle success
-        console.log(response.data.links);
+        
         foo.setState({
           links: response.data.links,
         });
