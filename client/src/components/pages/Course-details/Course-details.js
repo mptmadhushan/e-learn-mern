@@ -9,6 +9,7 @@ import CommentsService from "./../../../service/comments.service";
 import AddComments from "./../../shared/AddComments/AddComments";
 import Loader from "./../../shared/Spinner/Loader";
 import Webcam from "react-webcam";
+import CsvDownloadButton from 'react-json-to-csv'
 
 import {
   Container,
@@ -153,10 +154,10 @@ class CourseDetails extends Component {
   };
   handleAttentions = () => {
     const attention = {
-      user: this.props.loggedUser._id,
-      course: this.state.course._id,
-      teacher: this.state.course.owner._id,
-      attention: "not giving attention",
+      user: this.props.loggedUser?._id,
+      course: this.state.course?._id,
+      teacher: this.state.course.owner?._id,
+      attention: this.state.fraudRes?.data?.detected_emotion,
     };
     console.log("mrks");
     this.attentionService
@@ -281,16 +282,16 @@ class CourseDetails extends Component {
   handleAnswer = (answer) => {
     const corAnswer = this.state.course.correctAnswer[0];
 
-    // console.log(
-    //   "🚀 ~ file: Course-details.js ~ line 73 ~ CourseDetails ~ answer",
-    //   answer,
-    //   corAnswer
-    // );
+    console.log(
+      "🚀 ~ file: Course-details.js ~ line 73 ~ CourseDetails ~ answer",
+      answer,
+      corAnswer
+    );
     const value = {
       doc: this.state.course.quiz[0],
     };
 
-    if (answer === corAnswer) {
+    if (answer.toLowerCase() === corAnswer.toLowerCase()) {
       this.props.handleToast(true, "Correct Answer!", "#d4edda");
       this.handleMarks();
     } else {
@@ -402,7 +403,7 @@ class CourseDetails extends Component {
         exit={{ opacity: 0 }}
       >
         <Container className="course-details ">
-          <Webcam
+          {this.state.user.rolev!== "Teacher" && (<Webcam
             audio={false}
             height={350}
             ref="webcam"
@@ -410,7 +411,7 @@ class CourseDetails extends Component {
             screenshotFormat="image/jpeg"
             width={350}
             videoConstraints={videoConstraints}
-          />
+          />)}
           {this.state.course ? (
             <>
               <section className="header">
@@ -625,39 +626,41 @@ class CourseDetails extends Component {
                         {this.state.user.role === "Teacher" && (
                           <div>
                             <p>Student Marks</p>
-                            <table>
+                            {/* <table>
                               <tr>
                                 <th>Name</th>
                                 <th>Marks</th>
-                              </tr>
-                              {this.state.marksData.map((val, key) => {
+                              </tr> */}
+                              {/* {this.state.marksData.map((val, key) => {
                                 return (
                                   <tr key={key}>
                                     <td>{val.user.username}</td>
                                     <td>{val.marks}</td>
                                   </tr>
                                 );
-                              })}
-                            </table>
+                              })} */}
+                              <CsvDownloadButton data={this.state.marksData} />
+                            {/* </table> */}
                           </div>
                         )}
                         {this.state.user.role === "Teacher" && (
                           <div>
                             <p className="mt-5">Student Attention</p>
-                            <table>
+                            {/* <table>
                               <tr>
                                 <th>Name</th>
                                 <th>Attention</th>
-                              </tr>
-                              {this.state.attentionsData.map((val, key) => {
+                              </tr> */}
+                              {/* {this.state.attentionsData.map((val, key) => {
                                 return (
                                   <tr key={key}>
                                     <td>{val.user.username}</td>
                                     <td>{val.attention}</td>
                                   </tr>
                                 );
-                              })}
-                            </table>
+                              })} */}
+                              <CsvDownloadButton data={this.state.attentionsData} />
+                            {/* </table> */}
                           </div>
                         )}
                         <Modal

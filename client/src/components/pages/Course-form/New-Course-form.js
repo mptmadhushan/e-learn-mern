@@ -204,7 +204,7 @@ class NewCourseForm extends Component {
                         value={this.state.duration}
                         onChange={this.handleInputChange}
                         min="0"
-                        placeholder="How many hours?"
+                        placeholder="How many minutes?"
                         required
                       />
                     </Form.Group>
