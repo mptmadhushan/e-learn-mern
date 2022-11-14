@@ -337,32 +337,33 @@ class CourseDetails extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const userData = JSON.parse(this.state.user);
+    const userData = this.state.user;
+    console.log("🚀 ~ file: Course-details.js ~ line 341 ~ CourseDetails ~ userData", userData)
     const d = new Date();
 
     const month = d.getMonth() + 1; // Month	[mm]	(1 - 12)
     const day = d.getDate(); // Day		[dd]	(1 - 31)
     const hour = d.getHours(); // Year		[yyyy]
-    const value = {
+    const dataSend = {
       amount_of_transaction: this.state.course.price,
       gender: userData.gender,
       transaction_hour: hour,
       transaction_day: day,
       transaction_month: month,
-      age: parseInt(userData.age),
+      age: userData.age || 22,
     };
-    var bodyFormData = new FormData();
+    // const bodyFormData = new FormData();
     const foo = this;
-    bodyFormData.append("amount_of_transaction", 623.89);
-    bodyFormData.append("gender", "female");
-    bodyFormData.append("transaction_hour", 23);
-    bodyFormData.append("transaction_day", 31);
-    bodyFormData.append("transaction_month", 12);
-    bodyFormData.append("age", 22);
+    // bodyFormData.append("amount_of_transaction", 623.89);
+    // bodyFormData.append("gender", value.gender);
+    // bodyFormData.append(value.transaction_hour, 23);
+    // bodyFormData.append("transaction_day", 31);
+    // bodyFormData.append("transaction_month", 12);
+    // bodyFormData.append("age", 22);
     axios({
       method: "post",
       url: "http://127.0.0.1:8000/api/v1/fraud-detection",
-      data: bodyFormData,
+      data: dataSend,
       headers: { "Content-Type": "multipart/form-data" },
     })
       .then(function (response) {
@@ -536,7 +537,7 @@ class CourseDetails extends Component {
                               onChange={this.handleInputChange}
                             />
                           </Form.Group>
-                          <Form.Group controlId="card">
+                          {/* <Form.Group controlId="card">
                             <Form.Label>Card Number</Form.Label>
                             <Form.Control
                               type="text"
@@ -553,7 +554,7 @@ class CourseDetails extends Component {
                               value={this.state.cvv}
                               onChange={this.handleInputChange}
                             />
-                          </Form.Group>
+                        </Form.Group> */}
                         </div>
                       ) : (
                         <p>{this.state.fraud.msg}</p>
