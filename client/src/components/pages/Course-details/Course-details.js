@@ -9,7 +9,7 @@ import CommentsService from "./../../../service/comments.service";
 import AddComments from "./../../shared/AddComments/AddComments";
 import Loader from "./../../shared/Spinner/Loader";
 import Webcam from "react-webcam";
-import CsvDownloadButton from 'react-json-to-csv'
+import CsvDownloadButton from "react-json-to-csv";
 
 import {
   Container,
@@ -69,18 +69,14 @@ class CourseDetails extends Component {
     this.showQuiz();
 
     const user = JSON.parse(localStorage.getItem("user"));
-    // console.log("🚀 ~~ user", user);
+
     this.setState({
       user: user,
     });
 
-    setInterval(this.capture, 20000);
+    // setInterval(this.capture, 20000);
   };
   async sendData(reader) {
-    // console.log(
-    //   "🚀 ~ file: Course-details.js ~ line 71 ~ CourseDetails ~ sendData ~ reader",
-    //   reader
-    // );
     const formData = new FormData();
     formData.append("image", reader);
     try {
@@ -99,9 +95,7 @@ class CourseDetails extends Component {
       this.props.handleToast(true, response.data.detected_emotion, "#f8d7da");
       const bc = new window.BroadcastChannel("channel_name");
       const data =
-        response.data.detected_emotion +
-        " " +
-        this.props.loggedUser.username;
+        response.data.detected_emotion + " " + this.props.loggedUser.username;
       bc.postMessage(data);
     } catch (error) {
       console.log(error);
@@ -111,9 +105,9 @@ class CourseDetails extends Component {
 
   capture = () => {
     const imageSrc = this.refs?.webcam?.getScreenshot();
-    
+
     var file = this.dataURLtoFile(imageSrc, "image.jpeg");
-   
+
     this.sendData(file);
   };
   dataURLtoFile(dataurl, filename) {
@@ -137,7 +131,7 @@ class CourseDetails extends Component {
       teacher: this.state.course.owner._id,
       marks: 1,
     };
-   
+
     this.marksService
       .saveMark(mark)
       .then(() => {
@@ -260,6 +254,12 @@ class CourseDetails extends Component {
           "#f8d7da"
         );
       });
+      var newArray = this.state.marksData.filter(function (el) {
+        return el.marks &&
+               el.sqft >= 500 &&
+               el.num_of_beds >=2 &&
+               el.num_of_baths >= 2.5;
+      });
   };
 
   deleteComment = (commentId) => {
@@ -306,7 +306,6 @@ class CourseDetails extends Component {
     }
   };
   getSugg = () => {
-    
     var bodyFormData = new FormData();
     bodyFormData.append("doc", this.state.course.quiz[0]);
     const foo = this;
@@ -318,7 +317,7 @@ class CourseDetails extends Component {
     })
       .then(function (response) {
         //handle success
-        
+
         foo.setState({
           links: response.data.links,
         });
@@ -396,6 +395,64 @@ class CourseDetails extends Component {
       height: 720,
       facingMode: "user",
     };
+    const headers = [
+      {
+        key: 'marks',
+        name: 'ID',
+      },
+      {
+        key: 'user.username',
+        name: 'First Name',
+      },
+    ]
+    
+    const arr =this.state.marksData;
+    
+    arr.forEach(object => {
+      delete object.user['age'];
+      delete object.user['role'];
+      delete object.user['password'];
+      delete object.user['favTeachers'];
+      delete object.user['imageUrl'];
+      delete object.user['favTeachers'];
+      delete object.user['updatedAt'];
+      delete object.user['createdAt'];
+      delete object.user['gender'];
+       delete object.user['favCourses'];
+       delete object.user['_id'];
+       delete object['teacher']
+       delete object['updatedAt']
+       delete object.user['__v']
+       delete object['_id']
+       delete object['course']
+       delete object['__v']
+       delete object['createdAt']
+    });
+    const arr22 =this.state.attentionsData;
+    
+    arr22.forEach(object => {
+      delete object.user['age'];
+      delete object.user['role'];
+      delete object.user['password'];
+      delete object.user['favTeachers'];
+      delete object.user['imageUrl'];
+      delete object.user['favTeachers'];
+      delete object.user['updatedAt'];
+      delete object.user['createdAt'];
+      delete object.user['gender'];
+       delete object.user['favCourses'];
+       delete object.user['_id'];
+       delete object['teacher']
+       delete object['updatedAt']
+       delete object.user['__v']
+       delete object['_id']
+       delete object['course']
+       delete object['__v']
+       delete object['createdAt']
+    });
+
+    // 👇️ [{id: 1, name: 'Tom'}, {id: 2, name: 'Bob'}]
+    console.log('ar2',arr22);
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -403,15 +460,17 @@ class CourseDetails extends Component {
         exit={{ opacity: 0 }}
       >
         <Container className="course-details ">
-          {this.state.user.rolev!== "Teacher" && (<Webcam
-            audio={false}
-            height={350}
-            ref="webcam"
-            style={{ position: "fixed", bottom: 0, right: 0 }}
-            screenshotFormat="image/jpeg"
-            width={350}
-            videoConstraints={videoConstraints}
-          />)}
+          {this.state.user.role !== "Teacher" && (
+            <Webcam
+              audio={false}
+              height={350}
+              ref="webcam"
+              style={{ position: "fixed", bottom: 0, right: 0 }}
+              screenshotFormat="image/jpeg"
+              width={350}
+              videoConstraints={videoConstraints}
+            />
+          )}
           {this.state.course ? (
             <>
               <section className="header">
@@ -626,12 +685,13 @@ class CourseDetails extends Component {
                         {this.state.user.role === "Teacher" && (
                           <div>
                             <p>Student Marks</p>
+                            {/* <ExportJsonCsv headers={headers} items={this.state.marksData}>Export</ExportJsonCsv> */}
                             {/* <table>
                               <tr>
                                 <th>Name</th>
                                 <th>Marks</th>
                               </tr> */}
-                              {/* {this.state.marksData.map((val, key) => {
+                            {/* {this.state.marksData.map((val, key) => {
                                 return (
                                   <tr key={key}>
                                     <td>{val.user.username}</td>
@@ -639,7 +699,7 @@ class CourseDetails extends Component {
                                   </tr>
                                 );
                               })} */}
-                              <CsvDownloadButton data={this.state.marksData} />
+                            <CsvDownloadButton data={arr} />
                             {/* </table> */}
                           </div>
                         )}
@@ -651,7 +711,7 @@ class CourseDetails extends Component {
                                 <th>Name</th>
                                 <th>Attention</th>
                               </tr> */}
-                              {/* {this.state.attentionsData.map((val, key) => {
+                            {/* {this.state.attentionsData.map((val, key) => {
                                 return (
                                   <tr key={key}>
                                     <td>{val.user.username}</td>
@@ -659,7 +719,9 @@ class CourseDetails extends Component {
                                   </tr>
                                 );
                               })} */}
-                              <CsvDownloadButton data={this.state.attentionsData} />
+                            <CsvDownloadButton
+                              data={arr22}
+                            />
                             {/* </table> */}
                           </div>
                         )}
