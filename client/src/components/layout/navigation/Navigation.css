@@ -1,7 +1,8 @@
 
 .navbar{
     box-shadow: 0 1px 8px rgba(116, 116, 116, 0.329);
-    border-bottom: 1px solid #ced4da!important;
+    border-bottom: 1px solid #003870!important;
+    color: aqua;
 }
 
 .navbar a{

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import AuthService from './../../../service/auth.service'
-import logo from './logo2.png'
+import logo from './logo3.png'
 import { Navbar, Nav, Image } from 'react-bootstrap'
 import Popup from '../../shared/Popup/Popup'
 import LoginForm from '../../pages/Login-form/LoginForm'
@@ -37,7 +37,7 @@ class Navigation extends Component {
                     <LoginForm handleToast={this.props.handleToast} closeModal={() => this.handleModal(false)} storeUser={this.props.storeUser} />
                 </Popup>
 
-                <Navbar bg="light" variant="light" expand="md" className="menu" style={{ borderBottom: '1px solid #ddd' }}>
+                <Navbar bg="dark" variant="dark" expand="md" className="menu" style={{ borderBottom: '1px solid #ddd' }}>
                     <Link to="/">
                         <Navbar.Brand >
                             <motion.img
@@ -45,10 +45,10 @@ class Navigation extends Component {
                                 transition={{ duration: 1 }}
                                 alt="logo"
                                 src={logo}
-                                width="30"
-                                height="30"
+                                width="50"
+                                height="50"
                                 className="d-inline-block align-top mx-2"
-                            /> ScholieoX</Navbar.Brand>
+                            /> ScholeioX</Navbar.Brand>
                     </Link>
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">

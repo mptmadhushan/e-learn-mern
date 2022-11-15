@@ -1,10 +1,13 @@
 .teacher-profile {
     margin-top:80px;
+    background-color: #e5eaf5;
+    border-radius: .75rem;
+    padding:35px 40px;
 }
 
 .teacher-badge{
 
-    background-color:#fff;
+    background-color:#9df9ef;
     padding:35px 40px;
     border: 1px solid #dee2e6 ;
     border-radius: .25rem;
@@ -21,7 +24,7 @@
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: -.02rem;
-    font-size: 1.2rem;
+    font-size: 4rem;
     margin-bottom:5px;
 }
 

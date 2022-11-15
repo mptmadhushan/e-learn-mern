@@ -1,5 +1,5 @@
 .user-details{
-    background-color:#fff;
+    background-color:#9df9ef;
     padding:40px 40px;
     display:flex;
     justify-content: space-between;
@@ -45,7 +45,7 @@
     background: url(https://s.udemycdn.com/browse_components/shared-assets/purple-intersect.svg) repeat-x #003645;
     background-size: auto 120%;
     background-position: 0 -2.4rem;
-    color:white
+    color:white;
 }
 
 .user-profile h1{

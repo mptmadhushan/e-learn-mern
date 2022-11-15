@@ -74,7 +74,7 @@ class CourseDetails extends Component {
       user: user,
     });
 
-    // setInterval(this.capture, 20000);
+    setInterval(this.capture, 20000);
   };
   async sendData(reader) {
     const formData = new FormData();
@@ -351,19 +351,20 @@ class CourseDetails extends Component {
       transaction_day: day,
       transaction_month: month,
       age: userData.age || 22,
+     
     };
-    // const bodyFormData = new FormData();
+    const bodyFormData = new FormData();
     const foo = this;
-    // bodyFormData.append("amount_of_transaction", 623.89);
-    // bodyFormData.append("gender", value.gender);
-    // bodyFormData.append(value.transaction_hour, 23);
-    // bodyFormData.append("transaction_day", 31);
-    // bodyFormData.append("transaction_month", 12);
-    // bodyFormData.append("age", 22);
+    bodyFormData.append("amount_of_transaction",dataSend.amount_of_transaction);
+    bodyFormData.append("gender", dataSend.gender);
+    bodyFormData.append('transaction_hour', dataSend.transaction_hour);
+    bodyFormData.append("transaction_day", dataSend.transaction_day);
+    bodyFormData.append("transaction_month", dataSend.transaction_month);
+    bodyFormData.append("age", dataSend.age);
     axios({
       method: "post",
       url: "http://127.0.0.1:8000/api/v1/fraud-detection",
-      data: dataSend,
+      data: bodyFormData,
       headers: { "Content-Type": "multipart/form-data" },
     })
       .then(function (response) {
@@ -372,8 +373,14 @@ class CourseDetails extends Component {
         foo.setState({
           fraud: response.data,
         });
+        // if(!response.data.is_fraud){
+        // // window.location.replace("http://pymentpage.com");
+        // }else{
+        //   alert('error')
+        // }
       })
       .catch(function (response) {
+      
         //handle error
         console.log(response);
       });
