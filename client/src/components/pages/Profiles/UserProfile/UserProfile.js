@@ -121,9 +121,9 @@ class UserProfile extends Component {
             </Col>
           </Row>
         </Popup>
-
+    
         <Container className="user-profile">
-          <h1 className="mt-5 mb-3">Welcome back {this.props.loggedUser.username} !</h1>
+          <h1 className="mt-5 mb-3">Welcome Back {this.props.loggedUser.username} !</h1>
 
           {/* User details */}
           <section className="user-details">
@@ -152,14 +152,14 @@ class UserProfile extends Component {
 
 
           {/* Your activity*/}
-          <h2 className="mt-5 mb-3">Your activity</h2>
+          <h2 className="mt-5 mb-3">Your Activity</h2>
           <Row className="mt-5">
             <Col>
               <TabNav tabs={['Favorite Courses', 'Favorite Teachers', 'Suggested Courses']} selected={this.state.selected} setSelected={this.setSelected}   >
                 {this.state.favCourses.length > 0 &&
                   <Tab isSelected={this.state.selected === 'Favorite Courses'} >
                     <section>
-                      <Row>
+                      <Row style={{backgroundColor:'#dee2e6', padding:'20px'}}>
                         {
                           this.state.favCourses.map(elm =>
                             <CourseCard key={elm._id} {...elm} userInfo={this.props.loggedUser} teacher={this.props.teacherInfo} updateFavCourses={this.props.updateFavCourses} />)
@@ -171,7 +171,7 @@ class UserProfile extends Component {
                 }
                 {this.state.favTeachers.length > 0 &&
                   <Tab isSelected={this.state.selected === 'Favorite Teachers'} >
-                    <Row style={{ width: '100 %' }}>
+                    <Row style={{ backgroundColor:'#dee2e6', width: '100 %' , padding:'20px' }}>
                       {
                         this.state.favTeachers.map(elm =>
                           <TeacherCard key={elm._id} {...elm} userInfo={this.props.loggedUser} teacher={this.props.teacherInfo} updateFavTeachers={this.props.updateFavTeachers} />)
@@ -182,7 +182,7 @@ class UserProfile extends Component {
                 }
                 {this.state.randomCourses.length > 0 &&
                   <Tab isSelected={this.state.selected === 'Suggested Courses'} >
-                    <Row>
+                    <Row style={{ backgroundColor:'#dee2e6', padding:'20px' }}>
                       {
                         this.state.randomCourses.map(elm =>
                           <CourseCard key={elm._id} {...elm} userInfo={this.props.loggedUser} teacher={this.props.teacherInfo} updateFavCourses={this.props.updateFavCourses} />)

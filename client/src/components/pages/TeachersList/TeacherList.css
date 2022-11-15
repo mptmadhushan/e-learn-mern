@@ -5,7 +5,7 @@
     background-position: top;
     background-attachment: fixed;
     background-repeat: no-repeat;
-    color: white;
+    color: rgb(255, 255, 255);
 }
 
 .teacher-hero h1{
@@ -29,7 +29,10 @@
 }
 
 .teachers-list{
-    margin-top:50px
+    margin-top: 20px;
+    margin-bottom: -30px;
+    padding-top: 30px;
+    background-color: #e5eaf5;   
 }
 
 @media (max-width: 767px) {

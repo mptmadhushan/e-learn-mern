@@ -4,7 +4,7 @@ const Footer = () => {
   return (
     <footer className="footer mt-5">
       <p className="text-center">
-        Developed by ScholieoX
+        Developed by ScholeioX
       
       </p>
     </footer>

@@ -98,6 +98,7 @@ class TeacherProfile extends Component {
               <Row>
 
                 <Col md={{ span: 8 }} lg={{ span: 8 }}>
+                  <br></br>
                   <p className="instructor" style={{ color: '#73726c' }}>INSTRUCTOR</p>
                   <h1>{this.state.teacher.name} {this.state.teacher.surname} </h1>
                   <p><strong>{this.state.teacher.jobOccupation}</strong></p>
