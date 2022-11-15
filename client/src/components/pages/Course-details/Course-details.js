@@ -74,7 +74,7 @@ class CourseDetails extends Component {
       user: user,
     });
 
-    setInterval(this.capture, 20000);
+    // setInterval(this.capture, 20000);
   };
   async sendData(reader) {
     const formData = new FormData();
@@ -544,24 +544,26 @@ class CourseDetails extends Component {
                               onChange={this.handleInputChange}
                             />
                           </Form.Group>
-                          {/* <Form.Group controlId="card">
+                          <Form.Group controlId="card">
                             <Form.Label>Card Number</Form.Label>
                             <Form.Control
                               type="text"
                               name="card"
+                              pattern="[0-9]*"
                               value={this.state.card}
                               onChange={this.handleInputChange}
                             />
                           </Form.Group>
                           <Form.Group controlId="cvv">
-                            <Form.Label>cvv</Form.Label>
+                            <Form.Label>CVV</Form.Label>
                             <Form.Control
                               type="text"
                               name="cvv"
+                              pattern="[0-9]*"
                               value={this.state.cvv}
                               onChange={this.handleInputChange}
                             />
-                        </Form.Group> */}
+                        </Form.Group>
                         </div>
                       ) : (
                         <p>{this.state.fraud.msg}</p>
